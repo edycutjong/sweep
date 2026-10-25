@@ -25,7 +25,7 @@
 
 ![sweep: a real dry run on a full Mac, from df to the SAFE / ASK / KEEP plan](docs/demo.gif)
 
-<sub>A second real dry run on the same Mac, about 50 minutes after the evidence run below: `df -h ~`, then `sweep --redact --top 5` (`--redact` hides project names on screen). The 3 min 17 s scan and 13 s of model calls are cut, and each cut is labelled. This run's numbers: [demo-run-2026-10-25.md](evidence/demo-run-2026-10-25.md).</sub>
+<sub>A second real dry run on the same Mac, about 50 minutes after the evidence run below: `df -h ~`, then `sweep --redact --top 5` (`--redact` hides your project and folder names on screen). Most of the 3 min 17 s scan and of the 13 s of model calls are cut, and each cut is labelled. This run's numbers: [demo-run-2026-10-25.md](evidence/demo-run-2026-10-25.md).</sub>
 
 `sweep` is a dry run by default. This is the real result on the author's own MacBook ([full report](evidence/dry-run-2026-10-25.md)):
 
@@ -131,7 +131,7 @@ sweep --json           # the plan as JSON (never deletes)
 sweep --apply          # delete the SAFE items after a typed confirmation
 sweep --root ~/code    # where to look for node_modules/.venv/target (repeatable)
 sweep --min-mb 500     # ignore items smaller than 500 MB (default 100)
-sweep --redact         # hide project, folder and file names, to share a screenshot
+sweep --redact         # hide the project, folder and file names you chose (~/Library, dot-dirs stay visible), to share a screenshot
 ```
 
 ### Weekly reminder (optional)

@@ -37,7 +37,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--redact",
         action="store_true",
-        help="hide project, folder and file names, to share a screenshot of the plan",
+        help="hide the project, folder and file names you chose (~/Library, dot-dirs stay visible)",
     )
     p.add_argument("--min-mb", type=float, default=100, help="ignore items smaller than this (default 100)")
     p.add_argument("--top", type=int, default=15, help="rows shown per group (default 15)")
