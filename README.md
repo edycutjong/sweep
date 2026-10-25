@@ -101,7 +101,7 @@ Code, not prompt. The model is not asked about an item that a rule already settl
 
 ### Honest limits (5)
 
-1. **Hosted inference is not bit-deterministic** at temperature 0. A re-run flipped 2 of 20 borderline verdicts (the pnpm store and the cargo registry went from `safe` to `ask`). The more-cautious merge makes this harmless, but two runs can differ.
+1. **Hosted inference is not bit-deterministic** at temperature 0. A re-run flipped 2 of 20 borderline verdicts (the pnpm store and the cargo registry went from `safe` to `ask`). Drift can never cross a rule's cap (a KEEP never becomes a deletion), but inside a SAFE cap two runs can differ.
 2. **"Safe" is a `du` figure.** pnpm-linked `node_modules` free less than they measure. `--apply` reports the measured free-space change.
 3. **A full scan takes about 200 s** on a Mac with many projects, because each folder is sized with its own `du`. That is the price of honest per-item sizes.
 4. **Model reasons can sound factual** ("Very old browser cache") but are the model's judgement. Treat them as judgement; `decided_by` in `--json` says who decided.
