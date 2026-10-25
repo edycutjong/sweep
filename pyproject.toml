@@ -5,7 +5,7 @@ description = "A lazy disk-cleanup agent for macOS: finds the junk, asks an open
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
-dependencies = ["rich>=13"]
+dependencies = ["rich>=15.0.0"]
 
 [project.scripts]
 sweep = "sweep.cli:main"
