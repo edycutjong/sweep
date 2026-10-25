@@ -36,6 +36,8 @@ def test_drops_bad_entries():
                 {"id": "zzz", "verdict": "safe", "reason": "x"},  # unknown id
                 {"id": "b", "verdict": "safe", "reason": ""},  # empty reason
                 {"id": "b", "verdict": "safe", "reason": "ok", "extra": 1},  # extra key
+                {"id": ["a"], "verdict": "safe", "reason": "ok"},  # unhashable id
+                {"id": None, "verdict": "safe", "reason": "ok"},  # not a string
             ]
         }
     )

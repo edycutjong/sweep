@@ -38,9 +38,6 @@ MACOS_LOCATIONS: tuple[Location, ...] = (
 # $TMPDIR is not under $HOME on macOS (/var/folders/...); each entry is its own item.
 TMPDIR_KIND = "temp"
 
-# Only these $TMPDIR locations are ever scanned (macOS per-user temp, /tmp).
-TMPDIR_PREFIXES: tuple[str, ...] = ("/private/var/folders/", "/var/folders/", "/private/tmp/", "/tmp/")
-
 # Kinds the rules never let become SAFE automatically: a human decides.
 ASK_AT_MOST_KINDS: frozenset[str] = frozenset({"downloads", "trash", "simulator-data"})
 

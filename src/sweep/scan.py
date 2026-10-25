@@ -46,13 +46,19 @@ class Context:
         )
 
 
+_TMPDIR_SHAPES = (
+    re.compile(r"/private/var/folders/[^/]+/[^/]+/T"),  # macOS per-user temp (what $TMPDIR normally is)
+    re.compile(r"/private/tmp/[^/]+"),  # a private folder under /tmp, never /tmp itself
+)
+
+
 def safe_tmpdir(raw: str, home: Path) -> Path | None:
-    """The real $TMPDIR, only if it is a per-user temp folder (never home, never a parent of home)."""
-    real = os.path.realpath(raw).rstrip("/") + "/"
-    home_s = os.path.realpath(home).rstrip("/") + "/"
-    if not real.startswith(catalogue.TMPDIR_PREFIXES) or home_s.startswith(real) or real.startswith(home_s):
+    """The real $TMPDIR, only if it has the exact shape of a per-user temp folder. Otherwise: not scanned."""
+    real = os.path.realpath(raw).rstrip("/")
+    home_s = os.path.realpath(home)
+    if not any(shape.fullmatch(real) for shape in _TMPDIR_SHAPES) or home_s.startswith(real + "/"):
         return None
-    return Path(real.rstrip("/"))
+    return Path(real)
 
 
 def validate_roots(roots: list[str], home: Path) -> tuple[Path, ...]:
@@ -64,9 +70,7 @@ def validate_roots(roots: list[str], home: Path) -> tuple[Path, ...]:
         inside = real == home_s or real.startswith(home_s + "/")
         lib = os.path.join(home_s, "Library")
         if not inside or real == lib or real.startswith(lib + "/"):
-            raise SystemExit(
-                f"sweep: --root {r} must be your home folder or a folder inside it (not ~/Library)"
-            )
+            raise ValueError(f"--root {r} must be your home folder or a folder inside it (not ~/Library)")
         out.append(Path(real))
     return tuple(out)
 
@@ -233,13 +237,22 @@ def find_project_dirs(root: Path, skip: set[Path], max_depth: int = 12):
             stack.append((p, depth + 1))
 
 
-def regenerable_ok(d: Path) -> bool:
-    """Does the thing that rebuilds this folder actually sit next to it?"""
+def regenerable_ok(d: Path, roots: tuple[Path, ...] = ()) -> bool:
+    """Does the thing that rebuilds this folder actually sit next to it?
+
+    Lockfiles may sit up to 3 folders higher (monorepo workspaces), but never above the scan root.
+    """
     spec = catalogue.REGENERABLE_DIRS[d.name]
     if spec.beside and not any((d.parent / m).exists() for m in spec.beside):
         return False
     if spec.above:
-        ups = [d.parent, *list(d.parent.parents)[:3]]
+        top = [os.path.realpath(r) for r in roots]
+        ups = [
+            u
+            for u in [d.parent, *list(d.parent.parents)[:3]]
+            if not top
+            or any(os.path.realpath(u) == t or os.path.realpath(u).startswith(t + "/") for t in top)
+        ]
         if not any((u / m).exists() for u in ups for m in spec.above):
             return False
     return not spec.inside or any((d / m).exists() for m in spec.inside)
@@ -273,7 +286,7 @@ def refresh(it: "Item", ctx: Context) -> "Item":
         fresh.recent_activity = newest_within(p, time.time() - DAY)
     elif fresh.source == "project":
         fresh.repo, fresh.repo_last_commit, fresh.repo_dirty = repo_meta(p, {})
-        fresh.marker_ok = regenerable_ok(p)
+        fresh.marker_ok = regenerable_ok(p, ctx.roots)
         if fresh.repo is None:
             fresh.recent_activity = project_recent(p.parent, time.time() - RECENT_DAYS * DAY)
     return fresh
@@ -328,7 +341,7 @@ def scan(ctx: Context) -> list[Item]:
             if d in seen:
                 continue
             seen.add(d)
-            found.append((d, d.name, "project", {"marker_ok": regenerable_ok(d)}))
+            found.append((d, d.name, "project", {"marker_ok": regenerable_ok(d, ctx.roots)}))
 
     # Measure everything in a few batched `du` calls, then drop the small stuff.
     sizes = du_many([f[0] for f in found])

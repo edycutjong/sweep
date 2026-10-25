@@ -39,7 +39,11 @@ def main(
     ask: Callable[[str], str] | None = None,
 ) -> int:
     args = build_parser().parse_args(argv)
-    ctx = ctx or scan.Context.default(args.root, args.min_mb)
+    try:
+        ctx = ctx or scan.Context.default(args.root, args.min_mb)
+    except ValueError as e:
+        print(f"sweep: {e}", file=sys.stderr)
+        return 2
     err = Console(stderr=True)
     t0 = time.monotonic()
     if not args.json:

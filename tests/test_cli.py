@@ -37,7 +37,7 @@ def test_apply_with_typed_confirmation(mac, tmp_path, capsys):
         return prompt.split('"')[1]
 
     assert cli.main(["--apply"], ctx=mac, judge=Recorder("safe"), ask=ask) == 0
-    assert phrases and phrases[0].startswith('Type "DELETE ')
+    assert phrases and 'Type "DELETE ' in phrases[0]
     assert "home/code/old-clean/node_modules/pkg/index.js" not in tree(tmp_path)
     assert "freed" in capsys.readouterr().out
 

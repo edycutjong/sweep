@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 import pytest
-from conftest import Recorder
+from conftest import Recorder, write
 
 from sweep import plan, rules, scan
 from sweep.scan import Item
@@ -159,9 +159,17 @@ def test_tmpdir_and_roots_validation(tmp_path):
     assert scan.safe_tmpdir(str(home), home) is None  # TMPDIR=~ would expose home
     assert scan.safe_tmpdir("/", home) is None
     assert scan.safe_tmpdir("/private/var/folders/ab/xyz/T/", home) == Path("/private/var/folders/ab/xyz/T")
+    for loose in (
+        "/var/folders",
+        "/private/var/folders/ab",
+        "/tmp",
+        "/private/tmp",
+        "/private/var/folders/a/b",
+    ):
+        assert scan.safe_tmpdir(loose, home) is None, loose
     assert scan.validate_roots([str(home)], home) == (Path(os.path.realpath(home)),)
     for bad in ("/", str(tmp_path), str(home / "Library/Caches")):
-        with pytest.raises(SystemExit):
+        with pytest.raises(ValueError):
             scan.validate_roots([bad], home)
 
 
@@ -171,3 +179,8 @@ def test_guard_refuses_system_folders_and_a_home_tmpdir(mac):
     mac.tmpdir = mac.home
     tmp_item = Item(id="t", path=str(mac.home / "code"), kind="temp", source="temp", size=1)
     assert not rules.allowed_path(tmp_item, mac)
+
+
+def test_lockfile_search_stops_at_the_root(mac):
+    write(mac.home / "yarn.lock", "")  # a stray lockfile above the root must not vouch for anything
+    assert run(mac, Recorder("safe"))["~/code/scratch-app/node_modules"].verdict == "ask"

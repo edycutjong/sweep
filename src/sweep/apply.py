@@ -69,7 +69,10 @@ def apply(
         say(f"  {gb(it.size):>9}  {display_path(it, ctx)}")
     phrase = confirm_phrase(targets)
     try:
-        answer = ask(f'Type "{phrase}" to remove these {len(targets)} items (anything else cancels): ')
+        answer = ask(
+            f'Sizes are by du (hard-linked files free less). Type "{phrase}" to remove these '
+            f"{len(targets)} items (anything else cancels): "
+        )
     except (EOFError, KeyboardInterrupt):
         answer = ""
     if answer.strip() != phrase:
@@ -77,29 +80,39 @@ def apply(
         return {"removed": [], "failed": [], "freed_bytes": 0, "confirmed": False}
 
     free_before = free_bytes(ctx.home)
-    removed, failed = [], []
-    for it in targets:
-        why_not = still_safe(it, ctx)  # the plan may be minutes old: check again, item by item
-        if why_not:
-            failed.append({"path": it.path, "error": why_not})
-            continue
-        try:
-            if os.path.isdir(it.path):
-                shutil.rmtree(it.path)
-            else:
-                os.unlink(it.path)
-            removed.append({"path": it.path, "bytes": it.size})
-        except OSError as e:
-            failed.append({"path": it.path, "error": str(e)})
+    removed: list[dict] = []
+    failed: list[dict] = []
+    try:
+        for it in targets:
+            why_not = still_safe(it, ctx)  # the plan may be minutes old: check again, item by item
+            if why_not:
+                failed.append({"path": it.path, "error": why_not})
+                continue
+            try:
+                if os.path.isdir(it.path):
+                    shutil.rmtree(it.path)
+                else:
+                    os.unlink(it.path)
+                removed.append({"path": it.path, "bytes": it.size})
+            except OSError as e:
+                failed.append({"path": it.path, "error": str(e)})
+    finally:  # even after Ctrl-C, the log records what is already gone
+        log = write_log(ctx, removed, failed, free_before, say)
+    return log
+
+
+def write_log(ctx: Context, removed: list[dict], failed: list[dict], free_before: int | None, say) -> dict:
     free_after = free_bytes(ctx.home)
-    freed = sum(r["bytes"] for r in removed)
+    du_total = sum(r["bytes"] for r in removed)
+    measured = None if free_before is None or free_after is None else max(0, free_after - free_before)
     log = {
         "finished_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "model": MODEL_ID,
         "removed": removed,
         "failed": failed,
-        "freed_bytes": freed,  # sum of the removed items' du sizes
-        "free_space_before": free_before,  # what the disk itself reports (hard links, snapshots…)
+        "freed_bytes": measured if measured is not None else du_total,  # what the disk really got back
+        "removed_du_bytes": du_total,  # sum of du sizes: more than freed when files were hard-linked
+        "free_space_before": free_before,
         "free_space_after": free_after,
         "confirmed": True,
     }
@@ -110,8 +123,10 @@ def apply(
         where = f"log: {state / 'last-run.json'}"
     except OSError as e:
         where = f"could not write the log ({e})"
-    disk = ""
-    if free_before is not None and free_after is not None:
-        disk = f" · disk free {gb(free_before)} → {gb(free_after)}"
-    say(f"freed {gb(freed)}{disk} · {len(removed)} removed · {len(failed)} skipped · {where}")
+    if measured is not None:
+        disk = f"disk free {gb(free_before)} → {gb(free_after)}"
+        head = f"freed {gb(measured)} ({disk}; du of removed items {gb(du_total)})"
+    else:
+        head = f"removed {gb(du_total)} by du (free space not measurable)"
+    say(f"{head} · {len(removed)} removed · {len(failed)} skipped · {where}")
     return log
