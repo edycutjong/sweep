@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from conftest import Recorder, tree
+from conftest import Recorder, tree, write
 
 from sweep import catalogue, cli
 
@@ -57,3 +57,15 @@ def test_catalogue_paths_are_relative_and_unique():
     paths = [loc.path for loc in catalogue.MACOS_LOCATIONS]
     assert len(paths) == len(set(paths))
     assert all(not p.startswith("/") for p in paths)
+
+
+def test_markup_in_names_and_reasons_does_not_crash(mac, capsys, monkeypatch):
+    monkeypatch.setenv("COLUMNS", "250")
+    write(mac.home / "Downloads/report [final] [red].pdf")
+
+    def odd(batch):
+        return {m["id"]: {"verdict": "ask", "reason": "closing tag [/oops] and [bold]"} for m in batch}
+
+    assert cli.main(["--top", "100"], ctx=mac, judge=odd) == 0
+    out = capsys.readouterr().out
+    assert "[/oops]" in out and "report [final] [red].pdf" in out

@@ -4,6 +4,7 @@ import time
 
 from rich.console import Console
 from rich.table import Table
+from rich.text import Text
 
 from .apply import gb
 from .plan import display_path
@@ -82,13 +83,14 @@ def render(
         minor = [it for it in group if is_minor(it)]
         shown = [it for it in group if not is_minor(it)]
         for it in shown[:top]:
-            table.add_row(
-                gb(it.size) if it.size is not None else "unreadable", display_path(it, ctx), it.reason
-            )
+            cell = gb(it.size) if it.size is not None else "unreadable"
+            table.add_row(cell, Text(display_path(it, ctx)), Text(it.reason))  # Text: names are not markup
         if len(shown) > top:
             table.add_row("", f"… and {len(shown) - top} more (sweep --top {len(shown)})", "")
         if minor:
-            table.add_row("unreadable", f"{len(minor)} more system caches / temp entries", minor[0].reason)
+            table.add_row(
+                "unreadable", f"{len(minor)} more system caches / temp entries", Text(minor[0].reason)
+            )
         c.print(table)
         c.print()
-    c.print(f"[bold]{footer(items, seconds, model_id)}[/]")
+    c.print(Text(footer(items, seconds, model_id), style="bold"))

@@ -51,7 +51,7 @@ def parse_verdicts(content: str | None, ids: set[str]) -> dict[str, dict]:
     for e in entries:
         if not isinstance(e, dict) or set(e) != {"id", "verdict", "reason"}:
             continue
-        if e["id"] not in ids or e["id"] in good:
+        if not isinstance(e["id"], str) or e["id"] not in ids or e["id"] in good:
             continue
         reason = e["reason"]
         if e["verdict"] in VERDICTS and isinstance(reason, str) and 0 < len(reason) <= 200:
