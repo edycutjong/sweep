@@ -70,7 +70,7 @@ Gemma is the judge in the loop, not decoration. For every item the rules leave o
 
 - **Strict contract.** Fenced output, extra keys or unknown ids are rejected, and the item becomes `ask`.
 - **More-cautious-only merge.** The model can lower a rule's cap (`safe` → `ask` → `keep`), never raise it.
-- **Why Gemma 4.** We ran five open-weight models over the same 20 real items, three runs each. All five returned valid JSON 20/20 times with zero unsafe SAFE verdicts, so the tie-break was reason quality: Gemma 4 gave regenerability reasons. Table: [`evidence/model-spike.md`](evidence/model-spike.md).
+- **Why Gemma 4.** We ran five open-weight models over the same 20 real items, three runs each. All five returned valid JSON 20/20 times with zero unsafe SAFE verdicts (SAFE on Downloads, simulator data, or a dirty or recently committed project), so the tie-break was reason quality: Gemma 4 gave regenerability reasons. Table: [`evidence/model-spike.md`](evidence/model-spike.md).
 - **Auditable.** `sweep --json` records `decided_by` per item: `rule` (a hard rule settled or capped it), `model`, or `fallback` (no valid model answer).
 
 ## 🛡️ Safety Rules
@@ -103,7 +103,7 @@ Code, not prompt. The model is not asked about an item that a rule already settl
 
 1. **Hosted inference is not bit-deterministic** at temperature 0. A re-run flipped 2 of 20 borderline verdicts (the pnpm store and the cargo registry went from `safe` to `ask`). Drift can never cross a rule's cap (a KEEP never becomes a deletion), but inside a SAFE cap two runs can differ.
 2. **"Safe" is a `du` figure.** pnpm-linked `node_modules` free less than they measure. `--apply` reports the measured free-space change.
-3. **A full scan takes about 200 s** on a Mac with many projects, because each folder is sized with its own `du`. That is the price of honest per-item sizes.
+3. **A full scan takes about 200 s** on a Mac with many projects: one `du` per folder (the price of honest per-item sizes), the git reads, and the model calls.
 4. **Model reasons can sound factual** ("Very old browser cache") but are the model's judgement. Treat them as judgement; `decided_by` in `--json` says who decided.
 5. **Some macOS-protected folders are unreadable** without Full Disk Access (14 in the run above). They show as `unreadable` and `ask`; their size is unknown and counts as 0 GB in the totals.
 
