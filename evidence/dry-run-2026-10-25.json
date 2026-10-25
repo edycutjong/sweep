@@ -1,0 +1,1355 @@
+{
+  "tool": "sweep",
+  "model": "google/gemma-4-31b-it",
+  "scanned_at": "2026-10-25T20:47:35+0700",
+  "scan_seconds": 202.6,
+  "sizes": "sizes are du sizes; hard-linked files (pnpm, bun) are counted in every folder, so deleting frees less",
+  "found_bytes": 118500102344,
+  "safe_bytes": 34172682240,
+  "ask_bytes": 33646043336,
+  "keep_bytes": 50681376768,
+  "counts": {
+    "safe": 45,
+    "ask": 20,
+    "keep": 102
+  },
+  "items": [
+    {
+      "path": "~/Library/pnpm/store",
+      "kind": "package-cache",
+      "bytes": 14906540032,
+      "verdict": "ask",
+      "reason": "Large pnpm store; deleting may require re-downloading many dependencies.",
+      "decided_by": "model"
+    },
+    {
+      "path": "Docker (images, containers, build cache)",
+      "kind": "docker",
+      "bytes": 13988045000,
+      "verdict": "ask",
+      "reason": "never deleted by sweep \u2014 review, then run `docker system prune`",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/.gradle/caches",
+      "kind": "build-cache",
+      "bytes": 10546253824,
+      "verdict": "safe",
+      "reason": "Gradle build caches are regenerable.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-001>/node_modules",
+      "kind": "node_modules",
+      "bytes": 3778359296,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/.bun/install/cache",
+      "kind": "package-cache",
+      "bytes": 3677659136,
+      "verdict": "keep",
+      "reason": "Very recently active Bun installation cache.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/Library/Caches/ms-playwright",
+      "kind": "browser-binaries",
+      "bytes": 3399766016,
+      "verdict": "keep",
+      "reason": "Active browser binaries used for testing.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-002>/target",
+      "kind": "target",
+      "bytes": 2637316096,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Developer/CoreSimulator",
+      "kind": "simulator-data",
+      "bytes": 2512834560,
+      "verdict": "ask",
+      "reason": "Simulator data can be large and may contain user-created test environments.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-003>/.next",
+      "kind": ".next",
+      "bytes": 2377654272,
+      "verdict": "safe",
+      "reason": "Next.js build cache, not modified since last commit",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/Library/Caches/BraveSoftware",
+      "kind": "browser-cache",
+      "bytes": 1960906752,
+      "verdict": "safe",
+      "reason": "Very old browser cache.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-004>/node_modules",
+      "kind": "node_modules",
+      "bytes": 1846906880,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-005>/node_modules",
+      "kind": "node_modules",
+      "bytes": 1660010496,
+      "verdict": "safe",
+      "reason": "Regenerable node_modules in a clean git repo.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-006>/target",
+      "kind": "target",
+      "bytes": 1426378752,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/.npm/_cacache",
+      "kind": "package-cache",
+      "bytes": 1423650816,
+      "verdict": "safe",
+      "reason": "Regenerable npm cache.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-007>/node_modules",
+      "kind": "node_modules",
+      "bytes": 1416183808,
+      "verdict": "ask",
+      "reason": "Relatively recent activity (32 days ago) and large size; user should confirm if still needed.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-008>/target",
+      "kind": "target",
+      "bytes": 1395048448,
+      "verdict": "safe",
+      "reason": "Rust target directory is a build artifact.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-009>/node_modules",
+      "kind": "node_modules",
+      "bytes": 1230934016,
+      "verdict": "safe",
+      "reason": "Node modules can be re-installed via package manager.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-010>/.venv",
+      "kind": ".venv",
+      "bytes": 1177182208,
+      "verdict": "keep",
+      "reason": "its repo had a commit 8 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-011>/node_modules",
+      "kind": "node_modules",
+      "bytes": 1086033920,
+      "verdict": "keep",
+      "reason": "its repo had a commit 7 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-012>/.venv",
+      "kind": ".venv",
+      "bytes": 1070157824,
+      "verdict": "keep",
+      "reason": "its repo had a commit 13 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-01>",
+      "kind": "temp",
+      "bytes": 995069952,
+      "verdict": "safe",
+      "reason": "Temporary download file in TMPDIR",
+      "decided_by": "model"
+    },
+    {
+      "path": "$TMPDIR/tmp.PS945IbtZP",
+      "kind": "temp",
+      "bytes": 989540352,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.JjuyUm4ndV",
+      "kind": "temp",
+      "bytes": 989478912,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-013>/node_modules",
+      "kind": "node_modules",
+      "bytes": 970477568,
+      "verdict": "keep",
+      "reason": "its repo had a commit 10 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.4mliHlY0MS",
+      "kind": "temp",
+      "bytes": 969379840,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-014>/node_modules",
+      "kind": "node_modules",
+      "bytes": 959119360,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/.cargo/registry",
+      "kind": "package-cache",
+      "bytes": 954957824,
+      "verdict": "safe",
+      "reason": "Cargo registry is a cache of downloadable crates.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-015>/.venv",
+      "kind": ".venv",
+      "bytes": 936185856,
+      "verdict": "keep",
+      "reason": "its repo had a commit 10 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-016>/.next",
+      "kind": ".next",
+      "bytes": 788480000,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-017>/node_modules",
+      "kind": "node_modules",
+      "bytes": 746082304,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-018>/node_modules",
+      "kind": "node_modules",
+      "bytes": 737669120,
+      "verdict": "safe",
+      "reason": "Node modules can be re-installed via package manager.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-019>/node_modules",
+      "kind": "node_modules",
+      "bytes": 698499072,
+      "verdict": "keep",
+      "reason": "its repo had a commit 6 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-020>/node_modules",
+      "kind": "node_modules",
+      "bytes": 680079360,
+      "verdict": "keep",
+      "reason": "its project files changed in the last 14 days (no git repo)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-021>/node_modules",
+      "kind": "node_modules",
+      "bytes": 656277504,
+      "verdict": "ask",
+      "reason": "Very old node_modules outside of a git repo.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-022>/node_modules",
+      "kind": "node_modules",
+      "bytes": 602652672,
+      "verdict": "safe",
+      "reason": "Old node_modules in a clean git repo; easily regenerable via npm install.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-023>/node_modules",
+      "kind": "node_modules",
+      "bytes": 596393984,
+      "verdict": "safe",
+      "reason": "Regenerable node_modules in a clean git repo.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-024>/node_modules",
+      "kind": "node_modules",
+      "bytes": 589242368,
+      "verdict": "keep",
+      "reason": "its repo had a commit 13 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-025>/node_modules",
+      "kind": "node_modules",
+      "bytes": 569126912,
+      "verdict": "safe",
+      "reason": "Regenerable node_modules in a clean git repo.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-026>/node_modules",
+      "kind": "node_modules",
+      "bytes": 547512320,
+      "verdict": "safe",
+      "reason": "Old node_modules in a clean git repo; easily regenerable via npm install.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-027>/node_modules",
+      "kind": "node_modules",
+      "bytes": 545710080,
+      "verdict": "keep",
+      "reason": "its repo had a commit 0 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-028>/venv",
+      "kind": "venv",
+      "bytes": 544681984,
+      "verdict": "safe",
+      "reason": "Old Python virtual environment in a clean git repo is regenerable.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-029>/node_modules",
+      "kind": "node_modules",
+      "bytes": 535285760,
+      "verdict": "safe",
+      "reason": "Node modules in build folder, not modified since last commit",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-030>/node_modules",
+      "kind": "node_modules",
+      "bytes": 527671296,
+      "verdict": "keep",
+      "reason": "its repo had a commit 7 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-031>/node_modules",
+      "kind": "node_modules",
+      "bytes": 506036224,
+      "verdict": "keep",
+      "reason": "its repo had a commit 10 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-032>/node_modules",
+      "kind": "node_modules",
+      "bytes": 497025024,
+      "verdict": "keep",
+      "reason": "its repo had a commit 8 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-033>/node_modules",
+      "kind": "node_modules",
+      "bytes": 462073856,
+      "verdict": "keep",
+      "reason": "its project files changed in the last 14 days (no git repo)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-034>/node_modules",
+      "kind": "node_modules",
+      "bytes": 462073856,
+      "verdict": "keep",
+      "reason": "its project files changed in the last 14 days (no git repo)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-035>/.next",
+      "kind": ".next",
+      "bytes": 454598656,
+      "verdict": "safe",
+      "reason": "Next.js build output is regenerable.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/Library/Caches/Homebrew",
+      "kind": "package-cache",
+      "bytes": 435384320,
+      "verdict": "safe",
+      "reason": "Regenerable Homebrew cache.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-036>/node_modules",
+      "kind": "node_modules",
+      "bytes": 414904320,
+      "verdict": "safe",
+      "reason": "Old node_modules in a clean git repo; easily regenerable via npm install.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-037>/.venv",
+      "kind": ".venv",
+      "bytes": 414191616,
+      "verdict": "keep",
+      "reason": "its repo had a commit 12 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-038>/node_modules",
+      "kind": "node_modules",
+      "bytes": 399745024,
+      "verdict": "safe",
+      "reason": "Old node_modules in a clean git repo; easily regenerable via npm install.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-039>/.venv",
+      "kind": ".venv",
+      "bytes": 396472320,
+      "verdict": "keep",
+      "reason": "its repo had a commit 0 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-040>/node_modules",
+      "kind": "node_modules",
+      "bytes": 389337088,
+      "verdict": "keep",
+      "reason": "Recently accessed node_modules outside of a git repo.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-041>/.next",
+      "kind": ".next",
+      "bytes": 378908672,
+      "verdict": "safe",
+      "reason": "Next.js build cache is regenerable.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-042>/.next",
+      "kind": ".next",
+      "bytes": 365842432,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-02>",
+      "kind": "temp",
+      "bytes": 364097536,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-043>/node_modules",
+      "kind": "node_modules",
+      "bytes": 357937152,
+      "verdict": "safe",
+      "reason": "Node modules can be re-installed via package manager.",
+      "decided_by": "model"
+    },
+    {
+      "path": "$TMPDIR/tmp.a2JK8Fum0y",
+      "kind": "temp",
+      "bytes": 355983360,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.V5ddKM2y4f",
+      "kind": "temp",
+      "bytes": 355815424,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.s8ELjlF49x",
+      "kind": "temp",
+      "bytes": 355725312,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.Hu4lvUBTMx",
+      "kind": "temp",
+      "bytes": 355475456,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-03>",
+      "kind": "temp",
+      "bytes": 353984512,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-04>",
+      "kind": "temp",
+      "bytes": 353931264,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-05>",
+      "kind": "temp",
+      "bytes": 353701888,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.TMMLaJ646A",
+      "kind": "temp",
+      "bytes": 348348416,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.eKmJtTMnh2",
+      "kind": "temp",
+      "bytes": 348348416,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.ehyA0qSoWQ",
+      "kind": "temp",
+      "bytes": 348348416,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.u0VBr951CR",
+      "kind": "temp",
+      "bytes": 348348416,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-044>/node_modules",
+      "kind": "node_modules",
+      "bytes": 346271744,
+      "verdict": "safe",
+      "reason": "Old node_modules in a clean git repo; easily regenerable via npm install.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-045>/node_modules",
+      "kind": "node_modules",
+      "bytes": 345284608,
+      "verdict": "keep",
+      "reason": "its repo had a commit 0 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-046>/.venv",
+      "kind": ".venv",
+      "bytes": 340434944,
+      "verdict": "safe",
+      "reason": "Python virtual environment in a clean git repo is regenerable.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/Library/Caches/notion.id.ShipIt",
+      "kind": "app-cache",
+      "bytes": 331931648,
+      "verdict": "keep",
+      "reason": "Notion ShipIt cache was accessed very recently.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-047>/.next",
+      "kind": ".next",
+      "bytes": 317693952,
+      "verdict": "keep",
+      "reason": "its repo had a commit 6 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-048>/.next",
+      "kind": ".next",
+      "bytes": 317222912,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-049>/.next",
+      "kind": ".next",
+      "bytes": 303542272,
+      "verdict": "safe",
+      "reason": "Next.js build output is regenerable.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-050>/node_modules",
+      "kind": "node_modules",
+      "bytes": 295596032,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/Firefox",
+      "kind": "browser-cache",
+      "bytes": 294498304,
+      "verdict": "safe",
+      "reason": "Standard browser cache.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-051>/node_modules",
+      "kind": "node_modules",
+      "bytes": 290852864,
+      "verdict": "keep",
+      "reason": "its repo had a commit 0 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-052>/.venv",
+      "kind": ".venv",
+      "bytes": 288583680,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/pnpm",
+      "kind": "package-cache",
+      "bytes": 286588928,
+      "verdict": "safe",
+      "reason": "Regenerable pnpm cache.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-053>/node_modules",
+      "kind": "node_modules",
+      "bytes": 286396416,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-054>/node_modules",
+      "kind": "node_modules",
+      "bytes": 286396416,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-055>/node_modules",
+      "kind": "node_modules",
+      "bytes": 286396416,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-056>/node_modules",
+      "kind": "node_modules",
+      "bytes": 278245376,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/notion-updater",
+      "kind": "app-cache",
+      "bytes": 271093760,
+      "verdict": "safe",
+      "reason": "Standard application cache for notion-updater.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/Library/Caches/dotslash",
+      "kind": "app-cache",
+      "bytes": 270749696,
+      "verdict": "safe",
+      "reason": "Standard application cache for dotslash.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-057>/node_modules",
+      "kind": "node_modules",
+      "bytes": 269017088,
+      "verdict": "safe",
+      "reason": "Node modules in build folder, not modified since last commit",
+      "decided_by": "model"
+    },
+    {
+      "path": "$TMPDIR/tmp.kaKxVMNTTo",
+      "kind": "temp",
+      "bytes": 265609216,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-058>/node_modules",
+      "kind": "node_modules",
+      "bytes": 253562880,
+      "verdict": "safe",
+      "reason": "Node modules in build folder, not modified since last commit",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-059>/node_modules",
+      "kind": "node_modules",
+      "bytes": 246771712,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/Steam",
+      "kind": "app-cache",
+      "bytes": 242200576,
+      "verdict": "safe",
+      "reason": "Standard application cache for Steam.",
+      "decided_by": "model"
+    },
+    {
+      "path": "$TMPDIR/<scratch-06>",
+      "kind": "temp",
+      "bytes": 236269568,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-07>",
+      "kind": "temp",
+      "bytes": 235122688,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.RiH5hpXsSK",
+      "kind": "temp",
+      "bytes": 232022016,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-08>",
+      "kind": "temp",
+      "bytes": 230400000,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-09>",
+      "kind": "temp",
+      "bytes": 230268928,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-10>",
+      "kind": "temp",
+      "bytes": 226168832,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-060>/node_modules",
+      "kind": "node_modules",
+      "bytes": 224350208,
+      "verdict": "keep",
+      "reason": "its project files changed in the last 14 days (no git repo)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.Uq7RCfLq48",
+      "kind": "temp",
+      "bytes": 221175808,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/ollama",
+      "kind": "app-cache",
+      "bytes": 220606464,
+      "verdict": "keep",
+      "reason": "Ollama cache was accessed very recently.",
+      "decided_by": "model"
+    },
+    {
+      "path": "$TMPDIR/tmp.5JDTO4Iq6l",
+      "kind": "temp",
+      "bytes": 220463104,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.PUHXO050o8",
+      "kind": "temp",
+      "bytes": 220463104,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.hgCqarVeE1",
+      "kind": "temp",
+      "bytes": 220463104,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.l7WJlrBIpE",
+      "kind": "temp",
+      "bytes": 220463104,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.oqYGDjk2nm",
+      "kind": "temp",
+      "bytes": 220463104,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.uoclJEBC4G",
+      "kind": "temp",
+      "bytes": 220463104,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.vnGG0hHEKK",
+      "kind": "temp",
+      "bytes": 220463104,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.z3wyG6UId0",
+      "kind": "temp",
+      "bytes": 220463104,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-11>",
+      "kind": "temp",
+      "bytes": 218963968,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-12>",
+      "kind": "temp",
+      "bytes": 218607616,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-13>",
+      "kind": "temp",
+      "bytes": 217649152,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-14>",
+      "kind": "temp",
+      "bytes": 217251840,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/<scratch-15>",
+      "kind": "temp",
+      "bytes": 216735744,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-061>/.venv",
+      "kind": ".venv",
+      "bytes": 215040000,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-062>/.venv",
+      "kind": ".venv",
+      "bytes": 213954560,
+      "verdict": "keep",
+      "reason": "its project files changed in the last 14 days (no git repo)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-063>/node_modules",
+      "kind": "node_modules",
+      "bytes": 205000704,
+      "verdict": "safe",
+      "reason": "Regenerable node_modules in a clean git repo.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-064>/node_modules",
+      "kind": "node_modules",
+      "bytes": 203767808,
+      "verdict": "keep",
+      "reason": "its repo had a commit 0 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-065>/target",
+      "kind": "target",
+      "bytes": 200585216,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/hardhat-nodejs",
+      "kind": "app-cache",
+      "bytes": 193474560,
+      "verdict": "safe",
+      "reason": "Standard application cache for hardhat-nodejs.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-066>/node_modules",
+      "kind": "node_modules",
+      "bytes": 190517248,
+      "verdict": "keep",
+      "reason": "its repo had a commit 1 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/pip",
+      "kind": "package-cache",
+      "bytes": 188301312,
+      "verdict": "safe",
+      "reason": "Regenerable pip package cache.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/Library/Caches/node-gyp",
+      "kind": "app-cache",
+      "bytes": 187764736,
+      "verdict": "keep",
+      "reason": "Node-gyp cache was accessed very recently.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-067>/node_modules",
+      "kind": "node_modules",
+      "bytes": 186576896,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-068>/node_modules",
+      "kind": "node_modules",
+      "bytes": 185774080,
+      "verdict": "keep",
+      "reason": "its project files changed in the last 14 days (no git repo)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/tmp.s1T6iGaxnG",
+      "kind": "temp",
+      "bytes": 176304128,
+      "verdict": "safe",
+      "reason": "Temporary file in TMPDIR",
+      "decided_by": "model"
+    },
+    {
+      "path": "$TMPDIR/tmp.WWbJ1rgk4I",
+      "kind": "temp",
+      "bytes": 176226304,
+      "verdict": "safe",
+      "reason": "Temporary file in TMPDIR",
+      "decided_by": "model"
+    },
+    {
+      "path": "$TMPDIR/tmp.kIUwM1qkRx",
+      "kind": "temp",
+      "bytes": 175996928,
+      "verdict": "safe",
+      "reason": "Temporary file in TMPDIR",
+      "decided_by": "model"
+    },
+    {
+      "path": "$TMPDIR/tmp.rkPB1n5Jlm",
+      "kind": "temp",
+      "bytes": 175316992,
+      "verdict": "safe",
+      "reason": "Temporary file in TMPDIR",
+      "decided_by": "model"
+    },
+    {
+      "path": "$TMPDIR/tmp.jbmS24ZHGy",
+      "kind": "temp",
+      "bytes": 175259648,
+      "verdict": "safe",
+      "reason": "Temporary file in TMPDIR",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-069>/node_modules",
+      "kind": "node_modules",
+      "bytes": 166162432,
+      "verdict": "ask",
+      "reason": "node_modules outside of a git repo; cannot verify regenerability.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-070>/node_modules",
+      "kind": "node_modules",
+      "bytes": 158806016,
+      "verdict": "safe",
+      "reason": "Node modules can be re-installed via package manager.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-071>/node_modules",
+      "kind": "node_modules",
+      "bytes": 158097408,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-072>/node_modules",
+      "kind": "node_modules",
+      "bytes": 154112000,
+      "verdict": "safe",
+      "reason": "Old node_modules in a clean git repo are safe to delete.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-073>/.next",
+      "kind": ".next",
+      "bytes": 153800704,
+      "verdict": "safe",
+      "reason": "Next.js build output is regenerable.",
+      "decided_by": "model"
+    },
+    {
+      "path": "$TMPDIR/node-compile-cache",
+      "kind": "temp",
+      "bytes": 148242432,
+      "verdict": "keep",
+      "reason": "modified in the last 24 hours (probably in use)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-074>/node_modules",
+      "kind": "node_modules",
+      "bytes": 146173952,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-075>/.venv",
+      "kind": ".venv",
+      "bytes": 136589312,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-076>/node_modules",
+      "kind": "node_modules",
+      "bytes": 134258688,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-077>/node_modules",
+      "kind": "node_modules",
+      "bytes": 125870080,
+      "verdict": "safe",
+      "reason": "Node modules can be re-installed via package manager.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-078>/node_modules",
+      "kind": "node_modules",
+      "bytes": 124596224,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-079>/node_modules",
+      "kind": "node_modules",
+      "bytes": 122728448,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-080>/node_modules",
+      "kind": "node_modules",
+      "bytes": 122314752,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-081>/node_modules",
+      "kind": "node_modules",
+      "bytes": 121724928,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-082>/.next",
+      "kind": ".next",
+      "bytes": 121040896,
+      "verdict": "keep",
+      "reason": "its repo had a commit 8 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-083>/.venv",
+      "kind": ".venv",
+      "bytes": 120815616,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-084>/node_modules",
+      "kind": "node_modules",
+      "bytes": 117604352,
+      "verdict": "keep",
+      "reason": "its repo had a commit 4 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/Google",
+      "kind": "browser-cache",
+      "bytes": 116965376,
+      "verdict": "safe",
+      "reason": "Standard browser cache.",
+      "decided_by": "model"
+    },
+    {
+      "path": "~/<dir>/<project-085>/node_modules",
+      "kind": "node_modules",
+      "bytes": 115707904,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-086>/node_modules",
+      "kind": "node_modules",
+      "bytes": 115433472,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-087>/node_modules",
+      "kind": "node_modules",
+      "bytes": 110178304,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-088>/node_modules",
+      "kind": "node_modules",
+      "bytes": 105467904,
+      "verdict": "keep",
+      "reason": "its repo has uncommitted changes",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/<dir>/<project-089>/node_modules",
+      "kind": "node_modules",
+      "bytes": 105275392,
+      "verdict": "keep",
+      "reason": "its repo had a commit 13 days ago (active project)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/com.apple.Safari",
+      "kind": "browser-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/.Trash",
+      "kind": "trash",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/CloudKit",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/FamilyCircle",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/com.apple.HomeKit",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/com.apple.Safari.SafeBrowsing",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/com.apple.ap.adprivacyd",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/com.apple.containermanagerd",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/com.apple.findmy.fmfcore",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/com.apple.findmy.fmipcore",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/com.apple.findmy.imagecache",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/com.apple.homed",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "~/Library/Caches/familycircled",
+      "kind": "app-cache",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    },
+    {
+      "path": "$TMPDIR/TemporaryItems",
+      "kind": "temp",
+      "bytes": null,
+      "verdict": "ask",
+      "reason": "unreadable (macOS privacy protection; needs Full Disk Access)",
+      "decided_by": "rule"
+    }
+  ],
+  "note": "paths under $HOME that name a project or workspace are replaced by <project-NNN>; sizes and verdicts are unchanged"
+}
