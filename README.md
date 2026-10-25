@@ -94,10 +94,10 @@ Code, not prompt. The model is not asked about an item that a rule already settl
 
 | Metric | Value |
 |---|---|
-| Tests | 60 passing (`pytest`) |
+| Tests | 64 passing (`pytest`) |
 | Lint | `ruff` clean |
 | Real run | nothing deleted, [evidence](evidence/dry-run-2026-10-25.md) |
-| Evidence privacy | project-tree paths replaced by `~/<dir>/<project-NNN>/<artifact>`; sizes and verdicts untouched |
+| Evidence privacy | project-tree paths replaced by `~/<dir>/<project-NNN>/<artifact>`; sizes and verdicts untouched (`sweep --redact` does the same on screen) |
 
 ### Honest limits (5)
 
@@ -127,6 +127,7 @@ sweep --json           # the plan as JSON (never deletes)
 sweep --apply          # delete the SAFE items after a typed confirmation
 sweep --root ~/code    # where to look for node_modules/.venv/target (repeatable)
 sweep --min-mb 500     # ignore items smaller than 500 MB (default 100)
+sweep --redact         # hide project, folder and file names, to share a screenshot
 ```
 
 ### Weekly reminder (optional)
@@ -154,7 +155,7 @@ src/sweep/
 ├── render.py      rich table and --json
 ├── apply.py       typed-confirmation delete, with a log
 └── reminder.py    the optional launchd job
-tests/             60 tests
+tests/             64 tests
 evidence/          real dry run + model comparison
 ```
 

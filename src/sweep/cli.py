@@ -34,6 +34,11 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="DIR",
         help="where to look for node_modules/.venv/target/... (repeatable, default ~)",
     )
+    p.add_argument(
+        "--redact",
+        action="store_true",
+        help="hide project, folder and file names, to share a screenshot of the plan",
+    )
     p.add_argument("--min-mb", type=float, default=100, help="ignore items smaller than this (default 100)")
     p.add_argument("--top", type=int, default=15, help="rows shown per group (default 15)")
     p.add_argument("--version", action="version", version=f"sweep {__version__} (model {MODEL_ID})")
@@ -47,7 +52,10 @@ def main(
     ask: Callable[[str], str] | None = None,
     notifier: Callable[[str], None] = reminder.notify,
 ) -> int:
-    args = build_parser().parse_args(argv)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.redact and args.apply:
+        parser.error("--redact is for sharing a dry-run plan; --apply always shows the real paths it deletes")
     if args.install_reminder is not None:
         path = reminder.install(args.install_reminder or None)
         print(f"wrote {path} (weekly dry run + notification, never deletes). Not loaded; to turn it on:")
@@ -72,9 +80,9 @@ def main(
     if args.notify:
         notifier(reminder.message(render.totals(items)["safe"]))
     elif args.json:
-        print(json.dumps(render.to_json(items, ctx, seconds, MODEL_ID), indent=2))
+        print(json.dumps(render.to_json(items, ctx, seconds, MODEL_ID, redact=args.redact), indent=2))
     else:
-        render.render(items, ctx, seconds, MODEL_ID, top=args.top)
+        render.render(items, ctx, seconds, MODEL_ID, top=args.top, redact=args.redact)
     if args.apply:
         if ask is None and not sys.stdin.isatty():
             print("--apply needs an interactive terminal for the typed confirmation. Nothing was removed.")

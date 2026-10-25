@@ -7,7 +7,7 @@ from rich.table import Table
 from rich.text import Text
 
 from .apply import gb
-from .plan import display_path
+from .redact import Names
 from .scan import Context, Item
 
 GROUPS = (("safe", "SAFE", "green"), ("ask", "ASK", "yellow"), ("keep", "KEEP", "dim"))
@@ -24,9 +24,10 @@ def totals(items: list[Item]) -> dict:
     return t
 
 
-def to_json(items: list[Item], ctx: Context, seconds: float, model_id: str) -> dict:
+def to_json(items: list[Item], ctx: Context, seconds: float, model_id: str, redact: bool = False) -> dict:
     t = totals(items)
-    return {
+    names = Names(items, ctx, redact)
+    out = {
         "tool": "sweep",
         "model": model_id,
         "scanned_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
@@ -39,16 +40,19 @@ def to_json(items: list[Item], ctx: Context, seconds: float, model_id: str) -> d
         "counts": {v: sum(1 for it in items if it.verdict == v) for v, _, _ in GROUPS},
         "items": [
             {
-                "path": display_path(it, ctx),
+                "path": names.path(it),
                 "kind": it.kind,
                 "bytes": it.size,
                 "verdict": it.verdict,
-                "reason": it.reason,
+                "reason": names.reason(it),
                 "decided_by": it.decided_by,
             }
             for it in sorted(items, key=lambda i: -(i.size or 0))
         ],
     }
+    if redact:
+        out["redacted"] = REDACT_NOTE
+    return out
 
 
 def footer(items: list[Item], seconds: float, model_id: str) -> str:
@@ -58,6 +62,7 @@ def footer(items: list[Item], seconds: float, model_id: str) -> str:
     )
 
 
+REDACT_NOTE = "names you chose (projects, folders, files) are replaced; sizes and verdicts are unchanged"
 SIZES_NOTE = (
     "sizes are du sizes; hard-linked files (pnpm, bun) are counted in every folder, so deleting frees less"
 )
@@ -70,8 +75,10 @@ def render(
     model_id: str,
     top: int = 15,
     console: Console | None = None,
+    redact: bool = False,
 ) -> None:
     c = console or Console()
+    names = Names(items, ctx, redact)
     for verdict, title, style in GROUPS:
         group = sorted((it for it in items if it.verdict == verdict), key=lambda i: -(i.size or 0))
         if not group:
@@ -92,16 +99,18 @@ def render(
         shown = [it for it in group if not is_minor(it)]
         for it in shown[:top]:
             cell = gb(it.size) if it.size is not None else "unreadable"
-            table.add_row(cell, Text(display_path(it, ctx)), Text(it.reason))  # Text: names are not markup
+            table.add_row(cell, Text(names.path(it)), Text(names.reason(it)))  # Text: names are not markup
         if len(shown) > top:
             table.add_row("", f"… and {len(shown) - top} more (sweep --top {len(shown)})", "")
         if minor:
             table.add_row(
-                "unreadable", f"{len(minor)} more system caches / temp entries", Text(minor[0].reason)
+                "unreadable", f"{len(minor)} more system caches / temp entries", Text(names.reason(minor[0]))
             )
         c.print(table)
         c.print()
     c.print(Text(footer(items, seconds, model_id), style="bold"))
+    if redact:
+        c.print(Text(f"--redact: {REDACT_NOTE}.", style="dim"))
     c.print(
         Text(
             f"dry run — nothing was deleted. {SIZES_NOTE}. `sweep --apply` removes only SAFE items.",
