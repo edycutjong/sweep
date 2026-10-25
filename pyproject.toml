@@ -1,0 +1,31 @@
+[project]
+name = "sweep"
+version = "0.1.0"
+description = "A lazy disk-cleanup agent for macOS: finds the junk, asks an open-weight model what is safe, never deletes without your OK."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = ["rich>=13"]
+
+[project.scripts]
+sweep = "sweep.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sweep"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
