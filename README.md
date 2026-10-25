@@ -15,6 +15,11 @@ uvx --from git+https://github.com/edycutjong/sweep sweep   # or run once, no ins
 
 `sweep` is a dry run: it prints a plan and deletes nothing. `sweep --json` prints the plan as JSON.
 
+## Weekly reminder (optional)
+
+`sweep --install-reminder` writes a launchd job (Sundays 10:00) that runs `sweep --notify`: a dry run and one
+notification. It never deletes and does not load itself; it prints the `launchctl bootstrap` line to turn it on.
+
 ## Evidence
 
 A real dry run on the author's Mac, with every number: [`evidence/dry-run-2026-10-25.md`](evidence/dry-run-2026-10-25.md).

@@ -86,3 +86,27 @@ def test_dry_run_says_nothing_was_deleted_and_how_sizes_are_counted(mac, capsys,
     out = capsys.readouterr().out
     assert "nothing was deleted" in out and "hard-linked" in out and "(du)" in out
     assert "docker system prune" in out
+
+
+def test_notify_runs_a_dry_run_and_shows_one_notification(mac, tmp_path):
+    before = tree(tmp_path)
+    shown = []
+    assert cli.main(["--notify"], ctx=mac, judge=Recorder("safe"), notifier=shown.append) == 0
+    assert len(shown) == 1 and "GB (du)" in shown[0]
+    assert tree(tmp_path) == before
+
+
+def test_install_reminder_writes_a_plist_and_loads_nothing(tmp_path, monkeypatch, capsys):
+    import plistlib
+    import subprocess
+
+    def boom(*a, **k):
+        raise AssertionError("launchctl / any subprocess must not run")
+
+    monkeypatch.setattr(subprocess, "run", boom)
+    target = tmp_path / "LaunchAgents" / "reminder.plist"
+    assert cli.main(["--install-reminder", str(target)]) == 0
+    job = plistlib.loads(target.read_bytes())
+    assert job["ProgramArguments"][-1] == "--notify" and "--apply" not in job["ProgramArguments"]
+    assert job["StartCalendarInterval"]["Weekday"] == 0
+    assert "launchctl bootstrap" in capsys.readouterr().out

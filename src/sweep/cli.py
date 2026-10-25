@@ -8,7 +8,7 @@ from collections.abc import Callable
 
 from rich.console import Console
 
-from . import __version__, model, plan, render, scan
+from . import __version__, model, plan, reminder, render, scan
 from .apply import apply
 from .model import MODEL_ID
 
@@ -20,6 +20,14 @@ def build_parser() -> argparse.ArgumentParser:
     mode = p.add_mutually_exclusive_group()
     mode.add_argument("--apply", action="store_true", help="delete the SAFE items after a typed confirmation")
     mode.add_argument("--json", action="store_true", help="print the plan as JSON (never deletes)")
+    mode.add_argument("--notify", action="store_true", help="dry run, then one notification")
+    mode.add_argument(
+        "--install-reminder",
+        nargs="?",
+        const="",
+        metavar="PLIST",
+        help="write a weekly launchd job that runs --notify; does not load it",
+    )
     p.add_argument(
         "--root",
         action="append",
@@ -37,8 +45,14 @@ def main(
     ctx: scan.Context | None = None,
     judge: plan.Judge | None = None,
     ask: Callable[[str], str] | None = None,
+    notifier: Callable[[str], None] = reminder.notify,
 ) -> int:
     args = build_parser().parse_args(argv)
+    if args.install_reminder is not None:
+        path = reminder.install(args.install_reminder or None)
+        print(f"wrote {path} (weekly dry run + notification, never deletes). Not loaded; to turn it on:")
+        print(f"  launchctl bootstrap gui/$(id -u) {path}")
+        return 0
     try:
         ctx = ctx or scan.Context.default(args.root, args.min_mb)
     except ValueError as e:
@@ -46,15 +60,18 @@ def main(
         return 2
     err = Console(stderr=True)
     t0 = time.monotonic()
-    if not args.json:
+    quiet = args.json or args.notify
+    if not quiet:
         err.print("[dim]scanning (read-only)…[/]")
     items = scan.scan(ctx)
-    if not args.json:
+    if not quiet:
         err.print(f"[dim]{len(items)} candidates · asking {MODEL_ID} about the ones the rules leave open…[/]")
     plan.classify(items, ctx, judge or model.judge)
     seconds = time.monotonic() - t0
 
-    if args.json:
+    if args.notify:
+        notifier(reminder.message(render.totals(items)["safe"]))
+    elif args.json:
         print(json.dumps(render.to_json(items, ctx, seconds, MODEL_ID), indent=2))
     else:
         render.render(items, ctx, seconds, MODEL_ID, top=args.top)
