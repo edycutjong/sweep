@@ -25,7 +25,7 @@
 
 ![sweep: a real dry run on a full Mac, from df to the SAFE / ASK / KEEP plan](docs/demo.gif)
 
-<sub>A second real dry run on the same Mac, about 50 minutes after the evidence run below: `df -h ~`, then `sweep --redact --top 5` (`--redact` hides your project and folder names on screen). Most of the 3 min 17 s scan and of the 13 s of model calls are cut, and each cut is labelled. This run's numbers: [demo-run-2026-10-25.md](evidence/demo-run-2026-10-25.md).</sub>
+<sub>A second real dry run on the same Mac, about 50 minutes after the evidence run below: `df -h ~`, then `sweep --redact --top 5` (`--redact` swaps the names under your home for labels like `<project-007>`). Most of the 3 min 17 s scan and of the 13 s of model calls are cut, and each cut is labelled. This run's numbers: [demo-run-2026-10-25.md](evidence/demo-run-2026-10-25.md).</sub>
 
 `sweep` is a dry run by default. This is the real result on the author's own MacBook ([full report](evidence/dry-run-2026-10-25.md)):
 
@@ -101,7 +101,7 @@ Code, not prompt. The model is not asked about an item that a rule already settl
 | Tests | 64 passing (`pytest`) |
 | Lint | `ruff` clean |
 | Real run | nothing deleted, [evidence](evidence/dry-run-2026-10-25.md) |
-| Evidence privacy | project-tree paths replaced by `~/<dir>/<project-NNN>/<artifact>`; sizes and verdicts untouched (`sweep --redact` does the same on screen) |
+| Evidence privacy | project-tree paths replaced by `~/<dir>/<project-NNN>/<artifact>`, scratch names by `$TMPDIR/<scratch-NN>`; sizes and verdicts untouched (`sweep --redact` uses the same labels on screen) |
 
 ### Honest limits (5)
 
@@ -131,7 +131,7 @@ sweep --json           # the plan as JSON (never deletes)
 sweep --apply          # delete the SAFE items after a typed confirmation
 sweep --root ~/code    # where to look for node_modules/.venv/target (repeatable)
 sweep --min-mb 500     # ignore items smaller than 500 MB (default 100)
-sweep --redact         # hide the project, folder and file names you chose (~/Library, dot-dirs stay visible), to share a screenshot
+sweep --redact         # swap names under ~ for <project-NNN> / <item-NN> labels (~/Library, dot-dirs stay), to share a screenshot
 ```
 
 ### Weekly reminder (optional)
