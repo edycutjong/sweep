@@ -3,7 +3,7 @@ import json
 import pytest
 from conftest import Recorder, tree, write
 
-from sweep import catalogue, cli
+from sweep import catalogue, cli, reminder
 
 
 def test_dry_run_prints_groups_and_footer(mac, tmp_path, capsys):
@@ -104,6 +104,7 @@ def test_install_reminder_writes_a_plist_and_loads_nothing(tmp_path, monkeypatch
         raise AssertionError("launchctl / any subprocess must not run")
 
     monkeypatch.setattr(subprocess, "run", boom)
+    monkeypatch.setattr(reminder, "LOG", tmp_path / "dot-sweep" / "reminder.log")
     target = tmp_path / "LaunchAgents" / "reminder.plist"
     assert cli.main(["--install-reminder", str(target)]) == 0
     job = plistlib.loads(target.read_bytes())

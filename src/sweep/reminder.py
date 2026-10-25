@@ -8,6 +8,7 @@ from pathlib import Path
 
 LABEL = "dev.sweep.reminder"
 DEFAULT_PLIST = Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist"
+LOG = Path.home() / ".sweep/reminder.log"
 WEEKLY = {"Weekday": 0, "Hour": 10, "Minute": 0}  # Sunday 10:00
 
 
@@ -22,8 +23,8 @@ def plist_bytes(command: list[str] | None = None) -> bytes:
         "Label": LABEL,
         "ProgramArguments": [*(command or sweep_command()), "--notify"],
         "StartCalendarInterval": WEEKLY,
-        "StandardOutPath": str(Path.home() / ".sweep/reminder.log"),
-        "StandardErrorPath": str(Path.home() / ".sweep/reminder.log"),
+        "StandardOutPath": str(LOG),
+        "StandardErrorPath": str(LOG),
     }
     return plistlib.dumps(job)
 
@@ -32,6 +33,7 @@ def install(path: Path | None = None, command: list[str] | None = None) -> Path:
     """Write the plist and nothing else: loading it into launchd is left to the user."""
     path = Path(path) if path else DEFAULT_PLIST
     path.parent.mkdir(parents=True, exist_ok=True)
+    LOG.parent.mkdir(parents=True, exist_ok=True)  # launchd will not create the log folder
     path.write_bytes(plist_bytes(command))
     return path
 
