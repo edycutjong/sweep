@@ -38,19 +38,37 @@ MACOS_LOCATIONS: tuple[Location, ...] = (
 # $TMPDIR is not under $HOME on macOS (/var/folders/...); each entry is its own item.
 TMPDIR_KIND = "temp"
 
+# Only these $TMPDIR locations are ever scanned (macOS per-user temp, /tmp).
+TMPDIR_PREFIXES: tuple[str, ...] = ("/private/var/folders/", "/var/folders/", "/private/tmp/", "/tmp/")
+
 # Kinds the rules never let become SAFE automatically: a human decides.
 ASK_AT_MOST_KINDS: frozenset[str] = frozenset({"downloads", "trash", "simulator-data"})
 
-# Folder names that a package manager or build tool can regenerate — but only when the file that
-# regenerates them sits next to them. No marker → the rules cap the item at ASK.
-REGENERABLE_DIRS: dict[str, tuple[str, ...]] = {
-    "node_modules": ("package.json",),
-    ".next": ("package.json",),
-    ".turbo": ("package.json", "turbo.json"),
-    ".venv": ("pyproject.toml", "requirements.txt", "setup.py", "Pipfile", "uv.lock"),
-    "venv": ("pyproject.toml", "requirements.txt", "setup.py", "Pipfile", "uv.lock"),
-    "target": ("Cargo.toml", "pom.xml"),
-    "__pycache__": (),  # Python rewrites these on the next import
+
+@dataclass(frozen=True)
+class Regenerable:
+    """When a folder with this name really is regenerable output (otherwise the rules cap it at ASK)."""
+
+    beside: tuple[str, ...] = ()  # one of these must sit next to the folder
+    above: tuple[str, ...] = ()  # one of these must sit next to it or up to 3 folders higher (lockfiles)
+    inside: tuple[str, ...] = ()  # one of these must exist inside it (a build-output signature)
+
+
+_PY = ("pyproject.toml", "requirements.txt", "setup.py", "Pipfile", "uv.lock")
+_LOCKS = ("package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb", "npm-shrinkwrap.json")
+
+# Folder names that a package manager or build tool can regenerate.
+REGENERABLE_DIRS: dict[str, Regenerable] = {
+    "node_modules": Regenerable(beside=("package.json",), above=_LOCKS),
+    ".next": Regenerable(beside=("package.json",)),
+    ".turbo": Regenerable(beside=("package.json", "turbo.json")),
+    ".venv": Regenerable(beside=_PY, inside=("pyvenv.cfg",)),
+    "venv": Regenerable(beside=_PY, inside=("pyvenv.cfg",)),
+    "target": Regenerable(
+        beside=("Cargo.toml", "pom.xml"),
+        inside=("CACHEDIR.TAG", "debug", "release", "classes", "maven-status"),
+    ),
+    "__pycache__": Regenerable(),  # Python rewrites these on the next import
 }
 
 # Never descended into when looking for project folders under a root (relative to $HOME).

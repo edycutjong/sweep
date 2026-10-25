@@ -1,7 +1,9 @@
 """Acceptance #2: the hard rules hold no matter what the model says."""
 
 import os
+from pathlib import Path
 
+import pytest
 from conftest import Recorder
 
 from sweep import plan, rules, scan
@@ -128,3 +130,44 @@ def test_docker_size_parse():
     assert scan.parse_docker_size("512.1MB") == 512_100_000
     assert scan.parse_docker_size("0B") == 0
     assert scan.parse_docker_size("") == 0
+
+
+def test_regenerable_name_without_build_signature_is_ask(mac):
+    got = run(mac, Recorder("safe"))
+    assert got["~/code/rust/target"].verdict == "safe"  # Cargo.toml beside + CACHEDIR.TAG inside
+    assert got["~/code/maven-data/target"].verdict == "ask"  # pom.xml beside, but no build output inside
+    assert got["~/code/scratch-app/node_modules"].verdict == "ask"  # no lockfile: cannot reproduce it
+
+
+def test_project_outside_git_edited_recently_is_keep(mac):
+    it = run(mac, Recorder("safe"))["~/code/live-app/node_modules"]
+    assert (it.verdict, it.decided_by) == ("keep", "rule") and "no git repo" in it.reason
+
+
+def test_partly_valid_batch_answers_what_it_can(mac):
+    def half(batch):
+        return {m["id"]: {"verdict": "safe", "reason": "ok"} for m in batch[::2]}
+
+    items = [it for it in plan.classify(scan.scan(mac), mac, half) if it.decided_by != "rule"]
+    assert {it.verdict for it in items if it.reason == plan.FALLBACK_REASON} == {"ask"}
+    assert any(it.reason == plan.FALLBACK_REASON for it in items)
+
+
+def test_tmpdir_and_roots_validation(tmp_path):
+    home = tmp_path / "home"
+    home.mkdir()
+    assert scan.safe_tmpdir(str(home), home) is None  # TMPDIR=~ would expose home
+    assert scan.safe_tmpdir("/", home) is None
+    assert scan.safe_tmpdir("/private/var/folders/ab/xyz/T/", home) == Path("/private/var/folders/ab/xyz/T")
+    assert scan.validate_roots([str(home)], home) == (Path(os.path.realpath(home)),)
+    for bad in ("/", str(tmp_path), str(home / "Library/Caches")):
+        with pytest.raises(SystemExit):
+            scan.validate_roots([bad], home)
+
+
+def test_guard_refuses_system_folders_and_a_home_tmpdir(mac):
+    sys_item = Item(id="s", path="/usr/local/lib/node_modules", kind="node_modules", source="project", size=1)
+    assert not rules.allowed_path(sys_item, mac)
+    mac.tmpdir = mac.home
+    tmp_item = Item(id="t", path=str(mac.home / "code"), kind="temp", source="temp", size=1)
+    assert not rules.allowed_path(tmp_item, mac)

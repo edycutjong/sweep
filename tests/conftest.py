@@ -7,17 +7,22 @@ from pathlib import Path
 
 import pytest
 
-from sweep import model
+from sweep import model, scan
 from sweep.scan import Context
 
 DAY = 86400
 
 
 @pytest.fixture(autouse=True)
-def no_real_model(monkeypatch, tmp_path):
-    """Tests never reach OpenRouter: no key from env, no key from the real credentials file."""
+def no_real_model_no_real_home(monkeypatch, tmp_path):
+    """Tests never reach OpenRouter (no key anywhere) and never build a Context on the real home."""
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
     monkeypatch.setattr(model, "CREDENTIALS", tmp_path / "no-credentials.json")
+
+    def refuse(*a, **k):
+        raise AssertionError("a test tried to scan the real home folder")
+
+    monkeypatch.setattr(scan.Context, "default", classmethod(refuse))
 
 
 def write(p: Path, text: str = "x" * 4096) -> Path:
@@ -42,6 +47,7 @@ def git_repo(path: Path, commit_days_ago: float, dirty: bool = False) -> None:
     env["GIT_AUTHOR_DATE"] = env["GIT_COMMITTER_DATE"] = stamp
     write(path / ".gitignore", "node_modules/\n")
     write(path / "package.json", "{}")
+    write(path / "package-lock.json", "{}")
     write(path / "src/index.js", "console.log(1)")
 
     def git(*a):
@@ -86,6 +92,17 @@ def mac(tmp_path) -> Context:
     git_repo(home / "code/dirty", commit_days_ago=60, dirty=True)
     git_repo(home / "code/recent", commit_days_ago=2)
     write(home / "code/nomarker/target/data.bin")  # no Cargo.toml / pom.xml next to it
+    write(home / "code/rust/Cargo.toml", "[package]")
+    write(home / "code/rust/target/CACHEDIR.TAG", "Signature: 8a477f597d28d172789f06886806bc55")
+    write(home / "code/rust/target/debug/app")
+    write(home / "code/maven-data/pom.xml", "<project/>")
+    write(home / "code/maven-data/target/my-results.csv")  # named target, but not build output
+    write(home / "code/scratch-app/package.json", "{}")  # no git, no lockfile
+    write(home / "code/scratch-app/node_modules/pkg/index.js")
+    write(home / "code/live-app/package.json", "{}")
+    write(home / "code/live-app/yarn.lock", "")
+    write(home / "code/live-app/app.js", "edited today")  # no git, edited today
+    write(home / "code/live-app/node_modules/pkg/index.js")
     write(home / "code/py/pyproject.toml", "[project]")
     write(home / "code/py/.venv/pyvenv.cfg", "home = /usr/bin")
     write(home / "code/py/.venv/lib/site.py")
@@ -98,7 +115,16 @@ def mac(tmp_path) -> Context:
     write(tmp / "old-build/out.o")
     age(tmp / "old-build", 3)
     write(tmp / "fresh/socket.lock")
-    for p in (home / "Library", home / ".npm", home / "Downloads", home / "code/nomarker", home / "code/py"):
+    for p in (
+        home / "Library",
+        home / ".npm",
+        home / "Downloads",
+        home / "code/nomarker",
+        home / "code/py",
+        home / "code/rust",
+        home / "code/maven-data",
+        home / "code/scratch-app",
+    ):
         age(p, 40)
     return Context(
         home=home,

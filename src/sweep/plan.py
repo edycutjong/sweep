@@ -20,9 +20,10 @@ Judge = Callable[[list[dict]], dict[str, dict]]
 def display_path(it: Item, ctx: Context) -> str:
     if it.source == "docker":
         return "Docker (images, containers, build cache)"
-    tmp, home = os.path.realpath(ctx.tmpdir), os.path.realpath(ctx.home)
+    tmp = os.path.realpath(ctx.tmpdir) if ctx.tmpdir else None
+    home = os.path.realpath(ctx.home)
     real = os.path.join(os.path.realpath(os.path.dirname(it.path)), os.path.basename(it.path))
-    if real.startswith(tmp + "/"):
+    if tmp and real.startswith(tmp + "/"):
         return "$TMPDIR/" + real[len(tmp) + 1 :]
     if real.startswith(home + "/"):
         return "~/" + real[len(home) + 1 :]

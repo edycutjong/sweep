@@ -3,6 +3,7 @@
 Nothing here reads file contents or deletes anything.
 """
 
+import dataclasses
 import json
 import os
 import re
@@ -19,12 +20,13 @@ from pathlib import Path
 from . import catalogue
 
 DAY = 86400.0
+RECENT_DAYS = 14  # a project touched this recently is active
 
 
 @dataclass
 class Context:
     home: Path
-    tmpdir: Path
+    tmpdir: Path | None  # None → $TMPDIR is not scanned
     roots: tuple[Path, ...]
     min_bytes: int = 100 * 1024 * 1024
     state_dir: Path | None = None  # where last-run.json goes; default ~/.sweep
@@ -33,17 +35,40 @@ class Context:
 
     @classmethod
     def default(cls, roots: list[str] | None = None, min_mb: float = 100) -> "Context":
-        home = Path.home()
-        tmp = Path(os.path.realpath(os.environ.get("TMPDIR") or tempfile.gettempdir()))
-        rs = tuple(Path(os.path.realpath(os.path.expanduser(r))) for r in (roots or ["~"]))
+        home = Path(os.path.realpath(Path.home()))
         return cls(
-            home=Path(os.path.realpath(home)),
-            tmpdir=tmp,
-            roots=rs,
+            home=home,
+            tmpdir=safe_tmpdir(os.environ.get("TMPDIR") or tempfile.gettempdir(), home),
+            roots=validate_roots(roots or ["~"], home),
             min_bytes=int(min_mb * 1024 * 1024),
             state_dir=home / ".sweep",
             docker_probe=docker_df,
         )
+
+
+def safe_tmpdir(raw: str, home: Path) -> Path | None:
+    """The real $TMPDIR, only if it is a per-user temp folder (never home, never a parent of home)."""
+    real = os.path.realpath(raw).rstrip("/") + "/"
+    home_s = os.path.realpath(home).rstrip("/") + "/"
+    if not real.startswith(catalogue.TMPDIR_PREFIXES) or home_s.startswith(real) or real.startswith(home_s):
+        return None
+    return Path(real.rstrip("/"))
+
+
+def validate_roots(roots: list[str], home: Path) -> tuple[Path, ...]:
+    """--root must be your home folder or inside it, and never inside ~/Library."""
+    home_s = os.path.realpath(home)
+    out = []
+    for r in roots:
+        real = os.path.realpath(os.path.expanduser(r))
+        inside = real == home_s or real.startswith(home_s + "/")
+        lib = os.path.join(home_s, "Library")
+        if not inside or real == lib or real.startswith(lib + "/"):
+            raise SystemExit(
+                f"sweep: --root {r} must be your home folder or a folder inside it (not ~/Library)"
+            )
+        out.append(Path(real))
+    return tuple(out)
 
 
 @dataclass
@@ -77,7 +102,9 @@ def _unreadable(p: Path) -> bool:
 
 def _du_chunk(paths: list[str]) -> dict[str, tuple[int | None, bool]]:
     try:
-        r = subprocess.run(["du", "-sk", *paths], capture_output=True, text=True, timeout=900)
+        r = subprocess.run(
+            ["du", "-sk", *paths], capture_output=True, text=True, errors="replace", timeout=900
+        )
     except (OSError, subprocess.TimeoutExpired):
         return {p: (None, False) for p in paths}
     out: dict[str, tuple[int | None, bool]] = {}
@@ -93,10 +120,12 @@ def _du_chunk(paths: list[str]) -> dict[str, tuple[int | None, bool]]:
     return out
 
 
-def du_many(paths: list[Path], chunk: int = 200, workers: int = 4) -> dict[Path, tuple[int | None, bool]]:
+def du_many(paths: list[Path], chunk: int = 1, workers: int = 8) -> dict[Path, tuple[int | None, bool]]:
     """{path: (bytes on disk, partial)} — size None when the folder itself cannot be listed.
 
-    Regular files are measured with lstat; folders with `du -sk`, many paths per process.
+    Regular files are measured with lstat; folders with `du -sk`, one process per folder by default, so a
+    hard-linked file is counted in every folder that links it (what `du -sh <folder>` shows). Deleting
+    such a folder frees less; apply reports the measured free-space change too.
     """
     result: dict[Path, tuple[int | None, bool]] = {}
     dirs: list[str] = []
@@ -148,7 +177,9 @@ def newest_within(p: Path, since: float) -> bool:
 
 def _git(repo: Path, *args: str) -> str | None:
     try:
-        r = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True, timeout=30)
+        r = subprocess.run(
+            ["git", "-C", str(repo), *args], capture_output=True, text=True, errors="replace", timeout=30
+        )
     except (OSError, subprocess.TimeoutExpired):
         return None
     return r.stdout if r.returncode == 0 else None
@@ -202,6 +233,52 @@ def find_project_dirs(root: Path, skip: set[Path], max_depth: int = 12):
             stack.append((p, depth + 1))
 
 
+def regenerable_ok(d: Path) -> bool:
+    """Does the thing that rebuilds this folder actually sit next to it?"""
+    spec = catalogue.REGENERABLE_DIRS[d.name]
+    if spec.beside and not any((d.parent / m).exists() for m in spec.beside):
+        return False
+    if spec.above:
+        ups = [d.parent, *list(d.parent.parents)[:3]]
+        if not any((u / m).exists() for u in ups for m in spec.above):
+            return False
+    return not spec.inside or any((d / m).exists() for m in spec.inside)
+
+
+def project_recent(project: Path, since: float, limit: int = 20000) -> bool:
+    """For a project outside git: was any of its own files (not regenerable folders) touched after `since`?
+
+    Walks at most `limit` entries; a bigger tree counts as recent (cautious).
+    """
+    seen = 0
+    for dirpath, dirnames, filenames in os.walk(project, onerror=lambda e: None):
+        dirnames[:] = [n for n in dirnames if n not in catalogue.REGENERABLE_DIRS and not n.startswith(".")]
+        for n in filenames:
+            seen += 1
+            if seen > limit:
+                return True
+            try:
+                if os.lstat(os.path.join(dirpath, n)).st_mtime > since:
+                    return True
+            except OSError:
+                return True
+    return False
+
+
+def refresh(it: "Item", ctx: Context) -> "Item":
+    """Re-read the activity signals right before a delete (a repo may have changed since the scan)."""
+    fresh = dataclasses.replace(it)
+    p = Path(it.path)
+    if fresh.source == "temp":
+        fresh.recent_activity = newest_within(p, time.time() - DAY)
+    elif fresh.source == "project":
+        fresh.repo, fresh.repo_last_commit, fresh.repo_dirty = repo_meta(p, {})
+        fresh.marker_ok = regenerable_ok(p)
+        if fresh.repo is None:
+            fresh.recent_activity = project_recent(p.parent, time.time() - RECENT_DAYS * DAY)
+    return fresh
+
+
 def _mtime(p: Path) -> float | None:
     try:
         return p.lstat().st_mtime
@@ -237,7 +314,7 @@ def scan(ctx: Context) -> list[Item]:
 
     # 2. $TMPDIR entries.
     try:
-        tmp_children = sorted(os.scandir(ctx.tmpdir), key=lambda e: e.name)
+        tmp_children = sorted(os.scandir(ctx.tmpdir), key=lambda e: e.name) if ctx.tmpdir else []
     except OSError:
         tmp_children = []
     for c in tmp_children:
@@ -245,17 +322,13 @@ def scan(ctx: Context) -> list[Item]:
             found.append((Path(c.path), catalogue.TMPDIR_KIND, "temp", {}))
 
     # 3. Regenerable project folders under the roots.
-    skip = {ctx.home / name for name in catalogue.WALK_PRUNE} | seen | {ctx.tmpdir}
+    skip = {ctx.home / name for name in catalogue.WALK_PRUNE} | seen | ({ctx.tmpdir} if ctx.tmpdir else set())
     for root in ctx.roots:
         for d in find_project_dirs(root, skip):
             if d in seen:
                 continue
             seen.add(d)
-            markers = catalogue.REGENERABLE_DIRS[d.name]
-            marker_ok = not markers or any((d.parent / m).exists() for m in markers)
-            if d.name in ("venv", ".venv"):
-                marker_ok = marker_ok and (d / "pyvenv.cfg").exists()
-            found.append((d, d.name, "project", {"marker_ok": marker_ok}))
+            found.append((d, d.name, "project", {"marker_ok": regenerable_ok(d)}))
 
     # Measure everything in a few batched `du` calls, then drop the small stuff.
     sizes = du_many([f[0] for f in found])
@@ -278,6 +351,8 @@ def scan(ctx: Context) -> list[Item]:
             it.recent_activity = newest_within(path, ctx.now - DAY)
         if source == "project":
             it.repo, it.repo_last_commit, it.repo_dirty = repo_meta(path, git_cache)
+            if it.repo is None:  # no git history to go on: look at the project's own files instead
+                it.recent_activity = project_recent(path.parent, ctx.now - RECENT_DAYS * DAY)
         items.append(it)
 
     # 4. Docker — measured with Docker's own tool, never deleted by sweep.
@@ -311,7 +386,11 @@ def docker_df() -> tuple[int | None, str]:
         return None, ""
     try:
         r = subprocess.run(
-            ["docker", "system", "df", "--format", "{{json .}}"], capture_output=True, text=True, timeout=30
+            ["docker", "system", "df", "--format", "{{json .}}"],
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=30,
         )
     except (OSError, subprocess.TimeoutExpired):
         return None, "Docker did not answer"

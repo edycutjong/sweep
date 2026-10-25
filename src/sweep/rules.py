@@ -10,10 +10,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import catalogue
-from .scan import DAY, Context, Item
+from .scan import DAY, RECENT_DAYS, Context, Item
 
 CAUTION = {"safe": 0, "ask": 1, "keep": 2}
-RECENT_COMMIT_DAYS = 14
 
 # Never deleted, never a parent of something deleted from the catalogue side.
 PROTECTED = (
@@ -70,10 +69,17 @@ def allowed_path(it: Item, ctx: Context) -> bool:
     home = os.path.realpath(ctx.home)
     if real in PROTECTED or real == home or real in {os.path.join(home, p) for p in PROTECTED_HOME}:
         return False
+    if any(real.startswith(p + "/") for p in PROTECTED if p != "/"):  # inside a system folder
+        return False
     if any(real == os.path.realpath(r) for r in ctx.roots):
         return False
     if it.source == "temp":
-        return os.path.dirname(real) == os.path.realpath(ctx.tmpdir)
+        if not ctx.tmpdir:
+            return False
+        tmp = os.path.realpath(ctx.tmpdir)
+        if tmp == "/" or home.startswith(tmp + "/") or tmp.startswith(home + "/") or tmp == home:
+            return False
+        return os.path.dirname(real) == tmp
     if it.source == "catalogue":
         for loc in catalogue.MACOS_LOCATIONS:
             base = os.path.join(home, loc.path)
@@ -100,13 +106,21 @@ def evaluate(it: Item, ctx: Context) -> Rule:
         if it.repo_dirty:
             return Rule("keep", "keep", "its repo has uncommitted changes")
         last = it.repo_last_commit
-        if last is not None and ctx.now - last < RECENT_COMMIT_DAYS * DAY:
+        if last is not None and ctx.now - last < RECENT_DAYS * DAY:
             days = max(0, int((ctx.now - last) // DAY))
             return Rule("keep", "keep", f"its repo had a commit {days} days ago (active project)")
+        if it.repo is None and it.recent_activity:
+            return Rule(
+                "keep", "keep", f"its project files changed in the last {RECENT_DAYS} days (no git repo)"
+            )
         if it.repo is not None and it.repo_dirty is None:
             return Rule(None, "ask", "could not read its git status")
         if not it.marker_ok:
-            return Rule(None, "ask", "nothing next to it can regenerate it (no package/lock file)")
+            return Rule(
+                None,
+                "ask",
+                "nothing next to it can regenerate it (no manifest/lockfile, or not build output)",
+            )
     if it.source == "temp" and it.recent_activity:
         return Rule("keep", "keep", "modified in the last 24 hours (probably in use)")
     if it.partial:
