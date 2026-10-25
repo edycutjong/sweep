@@ -343,7 +343,7 @@ def scan(ctx: Context) -> list[Item]:
             seen.add(d)
             found.append((d, d.name, "project", {"marker_ok": regenerable_ok(d, ctx.roots)}))
 
-    # Measure everything in a few batched `du` calls, then drop the small stuff.
+    # Measure everything (one `du` per folder), then drop the small stuff.
     sizes = du_many([f[0] for f in found])
     git_cache: dict = {}
     for path, kind, source, extra in found:
