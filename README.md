@@ -23,6 +23,10 @@
 
 ## 📸 See it in Action
 
+![sweep: a real dry run on a full Mac, from df to the SAFE / ASK / KEEP plan](docs/demo.gif)
+
+<sub>A second real dry run on the same Mac, about 50 minutes after the evidence run below: `df -h ~`, then `sweep --redact --top 5` (`--redact` hides project names on screen). The 3 min 17 s scan and 13 s of model calls are cut, and each cut is labelled. This run's numbers: [demo-run-2026-10-25.md](evidence/demo-run-2026-10-25.md).</sub>
+
 `sweep` is a dry run by default. This is the real result on the author's own MacBook ([full report](evidence/dry-run-2026-10-25.md)):
 
 | Measurement | Value |
@@ -171,6 +175,7 @@ evidence/          real dry run + model comparison
 
 - [Real dry run, with every number](evidence/dry-run-2026-10-25.md) · [raw JSON](evidence/dry-run-2026-10-25.json)
 - [Model comparison](evidence/model-spike.md)
+- [Demo GIF](docs/demo.gif) · [the run behind it](evidence/demo-run-2026-10-25.md)
 
 ## 📄 License
 
