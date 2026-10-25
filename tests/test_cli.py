@@ -69,3 +69,20 @@ def test_markup_in_names_and_reasons_does_not_crash(mac, capsys, monkeypatch):
     assert cli.main(["--top", "100"], ctx=mac, judge=odd) == 0
     out = capsys.readouterr().out
     assert "[/oops]" in out and "report [final] [red].pdf" in out
+
+
+def test_bad_root_exits_2_without_scanning(monkeypatch, capsys):
+    def bad(*a, **k):
+        raise ValueError("--root / must be your home folder or a folder inside it (not ~/Library)")
+
+    monkeypatch.setattr(cli.scan.Context, "default", classmethod(bad))
+    assert cli.main(["--root", "/"]) == 2
+    assert "must be your home folder" in capsys.readouterr().err
+
+
+def test_dry_run_says_nothing_was_deleted_and_how_sizes_are_counted(mac, capsys, monkeypatch):
+    monkeypatch.setenv("COLUMNS", "250")
+    cli.main([], ctx=mac, judge=Recorder("safe"))
+    out = capsys.readouterr().out
+    assert "nothing was deleted" in out and "hard-linked" in out and "(du)" in out
+    assert "docker system prune" in out

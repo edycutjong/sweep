@@ -96,8 +96,8 @@ def allowed_path(it: Item, ctx: Context) -> bool:
 
 def evaluate(it: Item, ctx: Context) -> Rule:
     if it.source == "docker":
-        why = f"sweep never deletes Docker data — review it, then run `{catalogue.DOCKER_PRUNE_CMD}`"
-        return Rule("ask", "ask", why + (f" ({it.note})" if it.note else ""))
+        why = f"never deleted by sweep — review, then run `{catalogue.DOCKER_PRUNE_CMD}`"
+        return Rule("ask", "ask", why + (f" ({it.note})" if it.size is None and it.note else ""))
     if it.size is None:
         return Rule("ask", "ask", "unreadable (macOS privacy protection; needs Full Disk Access)")
     if not allowed_path(it, ctx):

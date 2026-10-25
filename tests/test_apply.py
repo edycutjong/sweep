@@ -140,3 +140,16 @@ def test_interrupted_delete_still_writes_the_log(mac, tmp_path, monkeypatch):
         apply.apply(items, mac, ask=lambda _: apply.confirm_phrase(targets), say=lambda _: None)
     saved = json.loads((tmp_path / "state/last-run.json").read_text())
     assert len(saved["removed"]) == 1
+    assert saved["failed"][-1]["path"] == calls[1] and "interrupted" in saved["failed"][-1]["error"]
+
+
+def test_freed_is_the_measured_disk_change_not_the_du_sum(mac, monkeypatch):
+    readings = iter([100_000_000_000, 100_250_000_000])
+    monkeypatch.setattr(apply, "free_bytes", lambda path: next(readings))
+    items = planned(mac)
+    targets = apply.deletable(items, mac)
+    lines: list[str] = []
+    log = apply.apply(items, mac, ask=lambda _: apply.confirm_phrase(targets), say=lines.append)
+    assert log["freed_bytes"] == 250_000_000
+    assert log["removed_du_bytes"] == sum(it.size for it in targets) != log["freed_bytes"]
+    assert lines[-1].startswith("freed 0.2 GB (disk free 100.0 GB → 100.2 GB")

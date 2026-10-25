@@ -31,6 +31,7 @@ def to_json(items: list[Item], ctx: Context, seconds: float, model_id: str) -> d
         "model": model_id,
         "scanned_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "scan_seconds": round(seconds, 1),
+        "sizes": SIZES_NOTE,
         "found_bytes": t["found"],
         "safe_bytes": t["safe"],
         "ask_bytes": t["ask"],
@@ -52,7 +53,14 @@ def to_json(items: list[Item], ctx: Context, seconds: float, model_id: str) -> d
 
 def footer(items: list[Item], seconds: float, model_id: str) -> str:
     t = totals(items)
-    return f"found {gb(t['found'])} · safe {gb(t['safe'])} · scanned in {seconds:.0f} s · model {model_id}"
+    return (
+        f"found {gb(t['found'])} · safe {gb(t['safe'])} (du) · scanned in {seconds:.0f} s · model {model_id}"
+    )
+
+
+SIZES_NOTE = (
+    "sizes are du sizes; hard-linked files (pnpm, bun) are counted in every folder, so deleting frees less"
+)
 
 
 def render(
@@ -94,3 +102,9 @@ def render(
         c.print(table)
         c.print()
     c.print(Text(footer(items, seconds, model_id), style="bold"))
+    c.print(
+        Text(
+            f"dry run — nothing was deleted. {SIZES_NOTE}. `sweep --apply` removes only SAFE items.",
+            style="dim",
+        )
+    )

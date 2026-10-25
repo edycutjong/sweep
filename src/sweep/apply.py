@@ -96,6 +96,9 @@ def apply(
                 removed.append({"path": it.path, "bytes": it.size})
             except OSError as e:
                 failed.append({"path": it.path, "error": str(e)})
+            except BaseException:  # Ctrl-C mid-folder: record the half-removed path, then stop
+                failed.append({"path": it.path, "error": "interrupted while deleting (partly removed)"})
+                raise
     finally:  # even after Ctrl-C, the log records what is already gone
         log = write_log(ctx, removed, failed, free_before, say)
     return log
