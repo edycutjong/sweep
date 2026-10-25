@@ -7,8 +7,9 @@ import time
 from collections.abc import Callable
 from pathlib import Path
 
-from . import catalogue, rules
+from . import catalogue, rules, scan
 from .model import MODEL_ID
+from .plan import display_path
 from .scan import Context, Item
 
 
@@ -35,6 +36,27 @@ def confirm_phrase(items: list[Item]) -> str:
     return f"DELETE {gb(sum(it.size or 0 for it in items))}"
 
 
+def free_bytes(path: Path) -> int | None:
+    try:
+        st = os.statvfs(path)
+    except OSError:
+        return None
+    return st.f_bavail * st.f_frsize
+
+
+def still_safe(it: Item, ctx: Context) -> str | None:
+    """Re-read git state / recent activity right before deleting. Returns why not, or None if still SAFE."""
+    if os.path.islink(it.path) or not os.path.lexists(it.path):
+        return "gone or replaced by a symlink since the scan"
+    fresh = scan.refresh(it, ctx)
+    if not rules.allowed_path(fresh, ctx):
+        return "failed the path guard"
+    r = rules.evaluate(fresh, ctx)
+    if r.final is not None or r.cap != "safe":
+        return f"no longer SAFE: {r.reason}"
+    return None
+
+
 def apply(
     items: list[Item], ctx: Context, ask: Callable[[str], str] = input, say: Callable[[str], None] = print
 ) -> dict:
@@ -42,42 +64,54 @@ def apply(
     if not targets:
         say("Nothing is SAFE to delete. Nothing was removed.")
         return {"removed": [], "failed": [], "freed_bytes": 0, "confirmed": False}
+    say(f"These {len(targets)} SAFE items will be removed (nothing else):")
+    for it in sorted(targets, key=lambda i: -(i.size or 0)):
+        say(f"  {gb(it.size):>9}  {display_path(it, ctx)}")
     phrase = confirm_phrase(targets)
     try:
-        answer = ask(f'Type "{phrase}" to remove {len(targets)} SAFE items (anything else cancels): ')
+        answer = ask(f'Type "{phrase}" to remove these {len(targets)} items (anything else cancels): ')
     except (EOFError, KeyboardInterrupt):
         answer = ""
     if answer.strip() != phrase:
         say("Cancelled. Nothing was removed.")
         return {"removed": [], "failed": [], "freed_bytes": 0, "confirmed": False}
 
+    free_before = free_bytes(ctx.home)
     removed, failed = [], []
     for it in targets:
-        if not rules.allowed_path(it, ctx):  # re-check right before deleting
-            failed.append({"path": it.path, "error": "failed the path guard"})
+        why_not = still_safe(it, ctx)  # the plan may be minutes old: check again, item by item
+        if why_not:
+            failed.append({"path": it.path, "error": why_not})
             continue
         try:
-            st = os.lstat(it.path)
-            if os.path.islink(it.path):
-                raise OSError("is a symlink")
             if os.path.isdir(it.path):
                 shutil.rmtree(it.path)
             else:
                 os.unlink(it.path)
-            removed.append({"path": it.path, "bytes": it.size, "mtime": st.st_mtime})
+            removed.append({"path": it.path, "bytes": it.size})
         except OSError as e:
             failed.append({"path": it.path, "error": str(e)})
+    free_after = free_bytes(ctx.home)
     freed = sum(r["bytes"] for r in removed)
     log = {
         "finished_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
         "model": MODEL_ID,
         "removed": removed,
         "failed": failed,
-        "freed_bytes": freed,
+        "freed_bytes": freed,  # sum of the removed items' du sizes
+        "free_space_before": free_before,  # what the disk itself reports (hard links, snapshots…)
+        "free_space_after": free_after,
         "confirmed": True,
     }
     state = Path(ctx.state_dir or ctx.home / ".sweep")
-    state.mkdir(parents=True, exist_ok=True)
-    (state / "last-run.json").write_text(json.dumps(log, indent=2) + "\n")
-    say(f"freed {gb(freed)} · {len(removed)} removed · {len(failed)} failed · log: {state / 'last-run.json'}")
+    try:
+        state.mkdir(parents=True, exist_ok=True)
+        (state / "last-run.json").write_text(json.dumps(log, indent=2) + "\n")
+        where = f"log: {state / 'last-run.json'}"
+    except OSError as e:
+        where = f"could not write the log ({e})"
+    disk = ""
+    if free_before is not None and free_after is not None:
+        disk = f" · disk free {gb(free_before)} → {gb(free_after)}"
+    say(f"freed {gb(freed)}{disk} · {len(removed)} removed · {len(failed)} skipped · {where}")
     return log
